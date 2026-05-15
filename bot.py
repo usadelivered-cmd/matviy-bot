@@ -1,15 +1,17 @@
 import telebot
 import gspread
+import json
+import os
 from google.oauth2.service_account import Credentials
 
 # --- НАЛАШТУВАННЯ ---
-BOT_TOKEN = "8602290900:AAFzlqoQrV5wgKjw2_jGZBRd_nb4F_4_wAs"
-SPREADSHEET_ID = "1fW87MIOllMxVJR9AXeWsR6DhboPh-e82zblGT6eAg-4"
-JSON_KEY_FILE = "matviy-bot-0a74574d5cde.json"
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
+GOOGLE_CREDS = json.loads(os.environ.get("GOOGLE_CREDS"))
 
 # --- ПІДКЛЮЧЕННЯ ---
 scopes = ["https://www.googleapis.com/auth/spreadsheets"]
-creds = Credentials.from_service_account_file(JSON_KEY_FILE, scopes=scopes)
+creds = Credentials.from_service_account_info(GOOGLE_CREDS, scopes=scopes)
 gc = gspread.authorize(creds)
 sh = gc.open_by_key(SPREADSHEET_ID)
 ws = sh.sheet1
@@ -22,8 +24,6 @@ def find_row(sku, size):
         if len(row) >= 4 and row[2].strip().lower() == sku.strip().lower() and row[3].strip() == size.strip():
             return i + 1, row
     return None, None
-
-# --- КОМАНДИ ---
 
 @bot.message_handler(commands=['start'])
 def start(msg):
